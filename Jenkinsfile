@@ -3,6 +3,7 @@
 pipeline {
     options {
       timeout(time: 2, unit: 'HOURS') 
+      skipDefaultCheckout()
   }
   agent {
     docker {
@@ -14,7 +15,9 @@ pipeline {
     stage('Going') {
       steps {  
         sh '''
-          make all
+          mkdir -p $GOPATH/src/github.com/prem0132 && cd $_
+          git clone https://github.com/prem0132/cain.git && cd cain
+          make
     '''
         }
     }       
