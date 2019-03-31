@@ -4,7 +4,7 @@ RUN mkdir -p $GOPATH/src/github.com/prem0132 && cd $GOPATH/src/github.com/prem01
     && git checkout cain-incremental-backup \
     && dep ensure \
     && make build
-COPY cain /usr/local/bin/cain
+COPY $GOPATH/src/github.com/prem0132/cain/bin/cain /usr/local/bin/cain
 RUN addgroup -g 1001 -S cain \
     && adduser -u 1001 -D -S -G cain cain
 USER cain
