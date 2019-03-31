@@ -16,7 +16,6 @@ pipeline {
       steps {  
       withCredentials(bindings: [usernamePassword(credentialsId: 'dockerhubPWD', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
           sh '''
-          sudo docker login -u $USERNAME -p $PASSWORD
           mkdir -p $GOPATH/src/github.com/prem0132 && cd $GOPATH/src/github.com/prem0132
           git clone https://github.com/prem0132/cain.git && cd cain
           make

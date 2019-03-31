@@ -37,6 +37,7 @@ docker: fmt vet
 
 # Push will only happen in travis ci
 push:
+	sudo docker login -u $USERNAME -p $PASSWORD
 	docker push premhashmap/cain:$(TAG)
 
 
