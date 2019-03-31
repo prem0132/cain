@@ -15,7 +15,7 @@ pipeline {
     stage('Going') {
       steps {  
         sh '''
-          mkdir -p $GOPATH/src/github.com/prem0132 && cd $_
+          mkdir -p $GOPATH/src/github.com/prem0132 && cd $GOPATH/src/github.com/prem0132
           git clone https://github.com/prem0132/cain.git && cd cain
           make
     '''
