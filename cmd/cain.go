@@ -124,8 +124,8 @@ func NewRestoreSchemaCmd(out io.Writer) *cobra.Command {
 	r := &newrestoreschemaCmd{out: out}
 
 	cmd := &cobra.Command{
-		Use:   "restore",
-		Short: "restore cassandra cluster from cloud storage",
+		Use:   "restoreschema",
+		Short: "restore cassandra cluster schema from cloud storage",
 		Long:  ``,
 		Args: func(cmd *cobra.Command, args []string) error {
 			if r.src == "" {
