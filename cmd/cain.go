@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/maorfr/cain/pkg/cain"
-	"github.com/maorfr/cain/pkg/utils"
+	"github.com/prem0132/cain/pkg/cain"
+	"github.com/prem0132/cain/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
