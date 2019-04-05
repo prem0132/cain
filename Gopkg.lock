@@ -214,6 +214,17 @@
   version = "v1.1.5"
 
 [[projects]]
+  digest = "1:22faf970e1a660decc39046766e3812bc0a31ec040559118b5a7c77cb54c9664"
+  name = "github.com/maorfr/cain"
+  packages = [
+    "pkg/cain",
+    "pkg/utils",
+  ]
+  pruneopts = "UT"
+  revision = "55f8a8d335bb64708ef55a21eae0a9e411160a30"
+  version = "0.6.0"
+
+[[projects]]
   digest = "1:48addb4ab030c6885899bb73b20a86dad347a58e6fc74f20bdafab1efb26a36a"
   name = "github.com/maorfr/skbn"
   packages = [
@@ -670,6 +681,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/maorfr/cain/pkg/cain",
+    "github.com/maorfr/cain/pkg/utils",
     "github.com/maorfr/skbn/pkg/skbn",
     "github.com/spf13/cobra",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
