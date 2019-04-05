@@ -74,6 +74,58 @@ func Backup(o BackupOptions) (string, error) {
 	return tag, nil
 }
 
+// SchemaBackupOptions are the options to pass to Backup
+type SchemaBackupOptions struct {
+	Namespace        string
+	Selector         string
+	Container        string
+	Keyspace         string
+	Dst              string
+	Parallel         int
+	BufferSize       float64
+	CassandraDataDir string
+}
+
+// SchemaBackup performs backup
+func SchemaBackup(o SchemaBackupOptions) (string, error) {
+	log.Println(" Schema Backup started!")
+	dstPrefix, dstPath := utils.SplitInTwo(o.Dst, "://")
+	tag := ""
+	log.Println("All done!")
+
+	log.Println("Getting clients")
+	k8sClient, dstClient, err := skbn.GetClients("k8s", dstPrefix, "", dstPath)
+	if err != nil {
+		return "", err
+	}
+
+	log.Println("Getting pods")
+	pods, err := utils.GetPods(k8sClient, o.Namespace, o.Selector)
+	if err != nil {
+		return "", err
+	}
+
+	log.Println("Testing existence of data dir")
+	if err := utils.TestK8sDirectory(k8sClient, pods, o.Namespace, o.Container, o.CassandraDataDir); err != nil {
+		return "", err
+	}
+
+	log.Println("Backing up schema")
+	dstBasePath, err := BackupKeyspaceSchema(k8sClient.(*skbn.K8sClient), dstClient, o.Namespace, pods[0], o.Container, o.Keyspace, dstPrefix, dstPath)
+	if err != nil {
+		return "", err
+	}
+
+	log.Println("Calculating paths. This may take a while...")
+	fromToPathsAllPods, err := utils.GetFromAndToPathsFromK8s(k8sClient, pods, o.Namespace, o.Container, o.Keyspace, tag, dstBasePath, o.CassandraDataDir)
+	if err != nil {
+		return "", err
+	}
+
+	log.Println("fromToPathsAllPods: ", fromToPathsAllPods)
+	return tag, nil
+}
+
 // RestoreOptions are the options to pass to Restore
 type RestoreOptions struct {
 	Src              string
