@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/maorfr/cain/pkg/utils"
 	"github.com/maorfr/skbn/pkg/skbn"
+	"github.com/prem0132/cain/pkg/utils"
 )
 
 // BackupKeyspaceSchema gets the schema of the keyspace and backs it up
