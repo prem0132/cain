@@ -222,8 +222,9 @@ func NewSchemaBackupCmd(out io.Writer) *cobra.Command {
 				BufferSize:       b.bufferSize,
 				CassandraDataDir: b.cassandraDataDir,
 			}
-			if err := cain.SchemaBackup(options); err != nil {
+			if backupstatus, err := cain.SchemaBackup(options); err != nil {
 				log.Fatal(err)
+				log.Println("backupstatus: ", backupstatus)
 			}
 		},
 	}
