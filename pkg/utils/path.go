@@ -77,6 +77,7 @@ func GetFromAndToPathsKeySpaceK8sToDst(k8sClient interface{}, namespace, pod, co
 	keyspacePath := filepath.Join(pathPrfx, keyspace)
 	log.Println("Filepath for Keyspace: ", pathPrfx)
 	tablesRelativePaths, err := skbn.GetListOfFilesFromK8s(k8sClient, pathPrfx, "d", keyspace)
+	log.Println("tablesRelativePaths", tablesRelativePaths)
 	if err != nil {
 		return nil, err
 	}
