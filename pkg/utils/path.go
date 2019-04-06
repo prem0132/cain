@@ -72,9 +72,10 @@ func GetFromAndToPathsSrcToK8s(srcClient, k8sClient interface{}, srcPrefix, srcP
 // GetFromAndToPathsKeySpaceK8sToDst performs a path mapping between Kubernetes and a destination
 func GetFromAndToPathsKeySpaceK8sToDst(k8sClient interface{}, namespace, pod, container, keyspace, tag, dstBasePath, cassandraDataDir string) ([]skbn.FromToPair, error) {
 	var fromToPaths []skbn.FromToPair
+	log.Println(namespace, pod, container, keyspace, tag, dstBasePath, cassandraDataDir)
 
 	pathPrfx := filepath.Join(namespace, pod, container, cassandraDataDir)
-
+	log.Println("PathPrefix:", pathPrfx)
 	keyspacePath := filepath.Join(pathPrfx, keyspace)
 	log.Println("Filepath for Keyspace: ", keyspacePath)
 	tablesRelativePaths, err := skbn.GetListOfFilesFromK8s(k8sClient, keyspacePath, "d", "*")
@@ -106,7 +107,6 @@ func GetFromAndToPathsKeySpaceK8sToDst(k8sClient interface{}, namespace, pod, co
 // GetFromAndToPathsK8sToDst performs a path mapping between Kubernetes and a destination
 func GetFromAndToPathsK8sToDst(k8sClient interface{}, namespace, pod, container, keyspace, tag, dstBasePath, cassandraDataDir string) ([]skbn.FromToPair, error) {
 	var fromToPaths []skbn.FromToPair
-	log.Println(namespace, pod, container, keyspace, tag, dstBasePath, cassandraDataDir)
 	pathPrfx := filepath.Join(namespace, pod, container, cassandraDataDir)
 	log.Println("pathprefix:", pathPrfx)
 	keyspacePath := filepath.Join(pathPrfx, keyspace)
