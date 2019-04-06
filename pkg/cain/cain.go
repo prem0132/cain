@@ -119,7 +119,7 @@ func SchemaBackup(o SchemaBackupOptions) (string, error) {
 	tag := ""
 
 	log.Println("Calculating paths. This may take a while...")
-	fromToPathsCassandraKeySpace, err := utils.GetFromAndToPathsFromK8s(k8sClient, pods, o.Namespace, o.Container, o.Keyspace, tag, dstBasePath, "")
+	fromToPathsCassandraKeySpace, err := utils.GetFromToPathsCassandraKeySpace(k8sClient, pods, o.Namespace, o.Container, o.Keyspace, tag, dstBasePath, "")
 	if err != nil {
 		return "", err
 	}
