@@ -223,18 +223,18 @@ func RestoreSchema(o RestoreSchemaOptions) error {
 	log.Println("Truncating tables")
 	TruncateTables(k8sClient, o.Namespace, o.Container, o.Keyspace, existingPods, tablesToRefresh, materializedViews)
 
-	/*log.Println("Starting files copy")
-		if err := skbn.PerformCopy(srcClient, k8sClient, srcPrefix, "k8s", fromToPaths, o.Parallel, o.BufferSize); err != nil {
-	   		return err
-	   	}
+	log.Println("Starting files copy")
+	if err := skbn.PerformCopy(srcClient, k8sClient, srcPrefix, "k8s", fromToPaths, o.Parallel, o.BufferSize); err != nil {
+		return err
+	}
 
-	   	log.Println("Changing files ownership")
-	   	if err := utils.ChangeFilesOwnership(k8sClient, existingPods, o.Namespace, o.Container, o.UserGroup, o.CassandraDataDir); err != nil {
-	   		return err
-	   	}
+	log.Println("Changing files ownership")
+	if err := utils.ChangeFilesOwnership(k8sClient, existingPods, o.Namespace, o.Container, o.UserGroup, o.CassandraDataDir); err != nil {
+		return err
+	}
 
-	   	log.Println("Refreshing tables")
-	   	RefreshTables(k8sClient, o.Namespace, o.Container, o.Keyspace, podsToBeRestored, tablesToRefresh) */
+	log.Println("Refreshing tables")
+	RefreshTables(k8sClient, o.Namespace, o.Container, o.Keyspace, podsToBeRestored, tablesToRefresh)
 
 	log.Println("All done!")
 	return nil
