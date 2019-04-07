@@ -95,7 +95,8 @@ func GetTables(iK8sClient interface{}, namespace, pod, container string) ([]byte
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Tables: \n\n\n %s\n\n\n", output)
+	log.Println("Tables: \n\n\n\n", output)
+	log.Println("\n\n\n\nEOF")
 	return output, nil
 }
 
