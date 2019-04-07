@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"path/filepath"
@@ -69,6 +70,40 @@ func GetFromAndToPathsSrcToK8s(srcClient, k8sClient interface{}, srcPrefix, srcP
 	return fromToPaths, MapKeysToSlice(pods), MapKeysToSlice(tables), nil
 }
 
+// Cqlsh executes cqlsh -e 'command' in a given pod
+func Cqlsh(iK8sClient interface{}, namespace, pod, container string, command []string) ([]byte, error) {
+	k8sClient := iK8sClient.(*skbn.K8sClient)
+
+	command = append([]string{"cqlsh", "-e"}, command...)
+	stdout := new(bytes.Buffer)
+	stderr, err := skbn.Exec(*k8sClient, namespace, pod, container, command, nil, stdout)
+
+	if len(stderr) != 0 {
+		return nil, fmt.Errorf("STDERR: " + (string)(stderr))
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return removeWarning(stdout.Bytes()), nil
+}
+
+// GetTables gets the list of tables
+func GetTables(iK8sClient interface{}, namespace, pod, container string) ([]byte, error) {
+	command := []string{fmt.Sprintf("DESCRIBE TABLES;")}
+	output, err := Cqlsh(iK8sClient, namespace, pod, container, command)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Tables: \n\n\n %s\n\n\n", output)
+	return output, nil
+}
+
+func removeWarning(b []byte) []byte {
+	const warning = "Warning: Cannot create directory at `/home/cassandra/.cassandra`. Command history will not be saved."
+	return []byte(strings.Replace((string)(b), warning, "", 1))
+}
+
 // GetFromAndToPathsKeySpaceK8sToDst performs a path mapping between Kubernetes and a destination
 func GetFromAndToPathsKeySpaceK8sToDst(k8sClient interface{}, namespace, pod, container, keyspace, tag, dstBasePath, cassandraDataDir string) ([]skbn.FromToPair, error) {
 	var fromToPaths []skbn.FromToPair
@@ -78,6 +113,7 @@ func GetFromAndToPathsKeySpaceK8sToDst(k8sClient interface{}, namespace, pod, co
 	log.Println("PathPrefix:", pathPrfx)
 	keyspacePath := filepath.Join(pathPrfx, keyspace)
 	log.Println("Filepath for Keyspace: ", keyspacePath)
+	GetTables(k8sClient, namespace, pod, container)
 	tablesRelativePaths, err := skbn.GetListOfFilesFromK8s(k8sClient, keyspacePath, "d", "*")
 	log.Println("tablesRelativePaths", tablesRelativePaths)
 	if err != nil {

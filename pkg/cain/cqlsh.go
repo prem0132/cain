@@ -67,6 +67,17 @@ func RestoreKeyspaceSchema(srcClient, iK8sClient interface{}, srcPrefix, srcPath
 	return sum, err
 }
 
+// GetTables gets the list of tables
+func GetTables(iK8sClient interface{}, namespace, pod, container string) ([]byte, error) {
+	command := []string{fmt.Sprintf("DESCRIBE TABLES;")}
+	output, err := Cqlsh(iK8sClient, namespace, pod, container, command)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Tables: \n\n\n %s\n\n\n", output)
+	return output, nil
+}
+
 // TruncateTables truncates the provided tables in all pods
 func TruncateTables(iK8sClient interface{}, namespace, container, keyspace string, pods, tables, materializedViews []string) {
 	bwgSize := len(pods)
