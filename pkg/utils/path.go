@@ -139,6 +139,7 @@ func GetFromAndToPathsKeySpaceK8sToDst(k8sClient interface{}, namespace, pod, co
 		log.Println("filesToCopyRelativePaths", filesToCopyRelativePaths)
 		var newfilesToCopyRelativePaths []string
 		for _, checkfilesToCopyRelativePaths := range filesToCopyRelativePaths {
+			log.Println("checkfilesToCopyRelativePaths", checkfilesToCopyRelativePaths)
 			if strings.Contains(checkfilesToCopyRelativePaths, "/backup") || strings.Contains(checkfilesToCopyRelativePaths, "/snapshots") {
 				log.Println("Skipping...")
 			} else {
@@ -147,7 +148,7 @@ func GetFromAndToPathsKeySpaceK8sToDst(k8sClient interface{}, namespace, pod, co
 		}
 
 		//for _, fileToCopyRelativePath := range newfilesToCopyRelativePaths {
-		for _, fileToCopyRelativePath := range tablesRelativePaths {
+		for _, fileToCopyRelativePath := range newfilesToCopyRelativePaths {
 
 			log.Println("fileToCopyRelativePath", fileToCopyRelativePath)
 			fromPath := filepath.Join(keyspacePath, fileToCopyRelativePath)
