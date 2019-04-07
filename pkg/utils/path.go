@@ -177,12 +177,12 @@ func PathFromK8sToDstKeySpace(k8sPath, cassandraDataDir, dstBasePath string) str
 	tableWithHash := pSplit[4]
 	// 5 = snapshots
 	//tag := pSplit[6]
-	file := ""
-	if len(k8sPath) < 6 {
-		file = pSplit[5]
-	} else {
-		file = pSplit[5] + "/" + pSplit[6]
-	}
+	file := pSplit[5]
+	/* 	if len(k8sPath) < 6 {
+	   		file = pSplit[5]
+	   	} else {
+	   		file = pSplit[5] + "/" + pSplit[6]
+	   	} */
 
 	table := strings.Split(tableWithHash, "-")[0]
 	log.Println("destPath: ", filepath.Join(dstBasePath, pod, keyspace, table, file))
