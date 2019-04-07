@@ -203,6 +203,7 @@ func PathFromK8sToDst(k8sPath, cassandraDataDir, dstBasePath string) string {
 	// 5 = snapshots
 	tag := pSplit[6]
 	file := pSplit[7]
+	log.Println("file:", file)
 
 	table := strings.Split(tableWithHash, "-")[0]
 
