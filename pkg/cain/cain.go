@@ -166,7 +166,6 @@ func RestoreSchema(o RestoreSchemaOptions) error {
 	if err != nil {
 		return err
 	}
-	log.Println("srcClient", srcClient, "k8sClient", k8sClient)
 
 	log.Println("Getting pods")
 	existingPods, err := utils.GetPods(k8sClient, o.Namespace, o.Selector)
@@ -201,7 +200,7 @@ func RestoreSchema(o RestoreSchemaOptions) error {
 	log.Println("Found schema:", sum)
 
 	log.Println("Calculating paths. This may take a while...")
-	srcPath := filepath.Join(srcBasePath, o.Keyspace, sum, o.Tag)
+	srcPath := filepath.Join(srcBasePath, o.Keyspace, sum)
 	fromToPaths, podsToBeRestored, tablesToRefresh, err := utils.GetFromAndToPathsSrcToK8s(srcClient, k8sClient, srcPrefix, srcPath, srcBasePath, o.Namespace, o.Container, o.CassandraDataDir)
 	if err != nil {
 		return err
