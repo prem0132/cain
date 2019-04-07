@@ -201,7 +201,8 @@ func RestoreSchema(o RestoreSchemaOptions) error {
 
 	log.Println("Calculating paths. This may take a while...")
 	srcPath := filepath.Join(srcBasePath, o.Keyspace, sum)
-	fromToPaths, podsToBeRestored, tablesToRefresh, err := utils.GetFromAndToPathsSrcToK8s(srcClient, k8sClient, srcPrefix, srcPath, srcBasePath, o.Namespace, o.Container, o.CassandraDataDir)
+	log.Println("srcPath:", srcPath)
+	fromToPaths, podsToBeRestored, tablesToRefresh, err := utils.GetFromAndToPathsSrcToK8sKeySpace(srcClient, k8sClient, srcPrefix, srcPath, srcBasePath, o.Namespace, o.Container, o.CassandraDataDir)
 	if err != nil {
 		return err
 	}

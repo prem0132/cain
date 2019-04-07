@@ -70,6 +70,38 @@ func GetFromAndToPathsSrcToK8s(srcClient, k8sClient interface{}, srcPrefix, srcP
 	return fromToPaths, MapKeysToSlice(pods), MapKeysToSlice(tables), nil
 }
 
+// GetFromAndToPathsSrcToK8sKeySpace performs a path mapping between a source and Kubernetes
+func GetFromAndToPathsSrcToK8sKeySpace(srcClient, k8sClient interface{}, srcPrefix, srcPath, srcBasePath, namespace, container, cassandraDataDir string) ([]skbn.FromToPair, []string, []string, error) {
+	log.Println("srcPrefix:\n", srcPrefix, "srcpath:\n", srcPath)
+	var fromToPaths []skbn.FromToPair
+
+	filesToCopyRelativePaths, err := skbn.GetListOfFiles(srcClient, srcPrefix, srcPath)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	if len(filesToCopyRelativePaths) == 0 {
+		return nil, nil, nil, fmt.Errorf("No files found to restore")
+	}
+	log.Println("files to restore:\n", filesToCopyRelativePaths)
+	pods := make(map[string]string)
+	tables := make(map[string]string)
+	testedPaths := make(map[string]string)
+	for _, fileToCopyRelativePath := range filesToCopyRelativePaths {
+
+		fromPath := filepath.Join(srcPath, fileToCopyRelativePath)
+		log.Println("soruce path:\n", fromPath)
+		toPath, err := PathFromSrcToK8s(k8sClient, fromPath, cassandraDataDir, srcBasePath, namespace, container, pods, tables, testedPaths)
+		log.Println("DestPath:\n", toPath)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+
+		fromToPaths = append(fromToPaths, skbn.FromToPair{FromPath: fromPath, ToPath: toPath})
+	}
+
+	return fromToPaths, MapKeysToSlice(pods), MapKeysToSlice(tables), nil
+}
+
 //REDUNDANT FROM CQLSH
 // Cqlsh executes cqlsh -e 'command' in a given pod
 func Cqlsh(iK8sClient interface{}, namespace, pod, container string, command []string) ([]byte, error) {
