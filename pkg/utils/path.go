@@ -131,12 +131,20 @@ func GetFromAndToPathsKeySpaceK8sToDst(k8sClient interface{}, namespace, pod, co
 		tablePath := filepath.Join(keyspacePath, tableRelativePath)
 		log.Println("tablePath", tablePath)
 		filesToCopyRelativePaths, err := skbn.GetListOfFilesFromK8s(k8sClient, tablePath, "f", "*")
-		log.Println("filesToCopyRelativePaths", filesToCopyRelativePaths)
 		if err != nil {
 			return nil, err
 		}
+		log.Println("filesToCopyRelativePaths", filesToCopyRelativePaths)
+		var newfilesToCopyRelativePaths []string
+		for _, checkfilesToCopyRelativePaths := range filesToCopyRelativePaths {
+			if strings.Contains(checkfilesToCopyRelativePaths, "/backup") || strings.Contains(checkfilesToCopyRelativePaths, "/snapshots") {
+				log.Println("Skipping...")
+			} else {
+				newfilesToCopyRelativePaths = append(newfilesToCopyRelativePaths, checkfilesToCopyRelativePaths)
+			}
+		}
 
-		for _, fileToCopyRelativePath := range filesToCopyRelativePaths {
+		for _, fileToCopyRelativePath := range newfilesToCopyRelativePaths {
 			log.Println("fileToCopyRelativePath", fileToCopyRelativePath)
 			fromPath := filepath.Join(tablePath, fileToCopyRelativePath)
 			toPath := PathFromK8sToDst(fromPath, cassandraDataDir, dstBasePath)
@@ -144,8 +152,9 @@ func GetFromAndToPathsKeySpaceK8sToDst(k8sClient interface{}, namespace, pod, co
 			fromToPaths = append(fromToPaths, skbn.FromToPair{FromPath: fromPath, ToPath: toPath})
 		}
 	}
-	log.Panicln("fromToPaths", fromToPaths)
+	log.Println("fromToPaths", fromToPaths)
 	return fromToPaths, nil
+
 }
 
 // GetFromAndToPathsK8sToDst performs a path mapping between Kubernetes and a destination
