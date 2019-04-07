@@ -70,6 +70,7 @@ func GetFromAndToPathsSrcToK8s(srcClient, k8sClient interface{}, srcPrefix, srcP
 	return fromToPaths, MapKeysToSlice(pods), MapKeysToSlice(tables), nil
 }
 
+//REDUNDANT FROM CQLSH
 // Cqlsh executes cqlsh -e 'command' in a given pod
 func Cqlsh(iK8sClient interface{}, namespace, pod, container string, command []string) ([]byte, error) {
 	k8sClient := iK8sClient.(*skbn.K8sClient)
@@ -88,6 +89,7 @@ func Cqlsh(iK8sClient interface{}, namespace, pod, container string, command []s
 	return removeWarning(stdout.Bytes()), nil
 }
 
+//GETTING TABLES
 // GetTables gets the list of tables
 func GetTables(iK8sClient interface{}, namespace, pod, container string) ([]byte, error) {
 	command := []string{fmt.Sprintf("DESCRIBE TABLES;")}
@@ -102,6 +104,7 @@ func GetTables(iK8sClient interface{}, namespace, pod, container string) ([]byte
 	return output, nil
 }
 
+//REDUNDANT FROM CQLSH
 func removeWarning(b []byte) []byte {
 	const warning = "Warning: Cannot create directory at `/home/cassandra/.cassandra`. Command history will not be saved."
 	return []byte(strings.Replace((string)(b), warning, "", 1))
@@ -117,29 +120,31 @@ func GetFromAndToPathsKeySpaceK8sToDst(k8sClient interface{}, namespace, pod, co
 	keyspacePath := filepath.Join(pathPrfx, keyspace)
 	log.Println("Filepath for Keyspace: ", keyspacePath)
 	GetTables(k8sClient, namespace, pod, container)
-	tablesRelativePaths, err := skbn.GetListOfFilesFromK8s(k8sClient, keyspacePath, "d", "tweet")
+	tablesRelativePaths, err := skbn.GetListOfFilesFromK8s(k8sClient, keyspacePath, "d", "tweet*")
 	log.Println("tablesRelativePaths", tablesRelativePaths)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, tableRelativePath := range tablesRelativePaths {
-
+		log.Println("tableRelativePath", tableRelativePath)
 		tablePath := filepath.Join(keyspacePath, tableRelativePath)
+		log.Println("tablePath", tablePath)
 		filesToCopyRelativePaths, err := skbn.GetListOfFilesFromK8s(k8sClient, tablePath, "f", "*")
+		log.Println("filesToCopyRelativePaths", filesToCopyRelativePaths)
 		if err != nil {
 			return nil, err
 		}
 
 		for _, fileToCopyRelativePath := range filesToCopyRelativePaths {
-
+			log.Println("fileToCopyRelativePath", fileToCopyRelativePath)
 			fromPath := filepath.Join(tablePath, fileToCopyRelativePath)
 			toPath := PathFromK8sToDst(fromPath, cassandraDataDir, dstBasePath)
 
 			fromToPaths = append(fromToPaths, skbn.FromToPair{FromPath: fromPath, ToPath: toPath})
 		}
 	}
-
+	log.Panicln("fromToPaths", fromToPaths)
 	return fromToPaths, nil
 }
 
