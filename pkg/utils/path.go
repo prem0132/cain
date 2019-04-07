@@ -120,41 +120,42 @@ func GetFromAndToPathsKeySpaceK8sToDst(k8sClient interface{}, namespace, pod, co
 	keyspacePath := filepath.Join(pathPrfx, keyspace)
 	log.Println("Filepath for Keyspace: ", keyspacePath)
 	GetTables(k8sClient, namespace, pod, container)
-	//tablesRelativePaths, err := skbn.GetListOfFilesFromK8s(k8sClient, keyspacePath, "d", "tweet*")
-	tablesRelativePaths, err := skbn.GetListOfFilesFromK8s(k8sClient, keyspacePath, "f", "*")
+	tablesRelativePaths, err := skbn.GetListOfFilesFromK8s(k8sClient, keyspacePath, "d", "tweet*")
+	// tablesRelativePaths, err := skbn.GetListOfFilesFromK8s(k8sClient, keyspacePath, "f", "*")
+	// tablesRelativePaths, err := skbn.GetListOfFilesFromK8s(k8sClient, keyspacePath, "f", "*")
 	log.Println("tablesRelativePaths", tablesRelativePaths)
 	if err != nil {
 		return nil, err
 	}
 
-	/* 	for _, tableRelativePath := range tablesRelativePaths {
-	log.Println("tableRelativePath", tableRelativePath)
-	tablePath := filepath.Join(keyspacePath, tableRelativePath)
-	log.Println("tablePath", tablePath)
-	filesToCopyRelativePaths, err := skbn.GetListOfFilesFromK8s(k8sClient, tablePath, "f", "*")
-	if err != nil {
-		return nil, err
-	}
-	log.Println("filesToCopyRelativePaths", filesToCopyRelativePaths)
-	var newfilesToCopyRelativePaths []string
-	for _, checkfilesToCopyRelativePaths := range filesToCopyRelativePaths {
-		if strings.Contains(checkfilesToCopyRelativePaths, "/backup") || strings.Contains(checkfilesToCopyRelativePaths, "/snapshots") {
-			log.Println("Skipping...")
-		} else {
-			newfilesToCopyRelativePaths = append(newfilesToCopyRelativePaths, checkfilesToCopyRelativePaths)
+	for _, tableRelativePath := range tablesRelativePaths {
+		log.Println("tableRelativePath", tableRelativePath)
+		tablePath := filepath.Join(keyspacePath, tableRelativePath)
+		log.Println("tablePath", tablePath)
+		filesToCopyRelativePaths, err := skbn.GetListOfFilesFromK8s(k8sClient, tablePath, "f", "*")
+		if err != nil {
+			return nil, err
 		}
-	} */
+		log.Println("filesToCopyRelativePaths", filesToCopyRelativePaths)
+		var newfilesToCopyRelativePaths []string
+		for _, checkfilesToCopyRelativePaths := range filesToCopyRelativePaths {
+			if strings.Contains(checkfilesToCopyRelativePaths, "/backup") || strings.Contains(checkfilesToCopyRelativePaths, "/snapshots") {
+				log.Println("Skipping...")
+			} else {
+				newfilesToCopyRelativePaths = append(newfilesToCopyRelativePaths, checkfilesToCopyRelativePaths)
+			}
+		}
 
-	//for _, fileToCopyRelativePath := range newfilesToCopyRelativePaths {
-	for _, fileToCopyRelativePath := range tablesRelativePaths {
+		//for _, fileToCopyRelativePath := range newfilesToCopyRelativePaths {
+		for _, fileToCopyRelativePath := range tablesRelativePaths {
 
-		log.Println("fileToCopyRelativePath", fileToCopyRelativePath)
-		fromPath := filepath.Join(keyspacePath, fileToCopyRelativePath)
-		toPath := PathFromK8sToDst(fromPath, cassandraDataDir, dstBasePath)
+			log.Println("fileToCopyRelativePath", fileToCopyRelativePath)
+			fromPath := filepath.Join(keyspacePath, fileToCopyRelativePath)
+			toPath := PathFromK8sToDst(fromPath, cassandraDataDir, dstBasePath)
 
-		fromToPaths = append(fromToPaths, skbn.FromToPair{FromPath: fromPath, ToPath: toPath})
+			fromToPaths = append(fromToPaths, skbn.FromToPair{FromPath: fromPath, ToPath: toPath})
+		}
 	}
-	//}
 	log.Println("fromToPaths", fromToPaths)
 	return fromToPaths, nil
 
