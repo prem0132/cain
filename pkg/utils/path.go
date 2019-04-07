@@ -86,10 +86,21 @@ func GetFromAndToPathsSrcToK8sKeySpace(srcClient, k8sClient interface{}, srcPref
 	pods := make(map[string]string)
 	tables := make(map[string]string)
 	testedPaths := make(map[string]string)
-	for _, fileToCopyRelativePath := range filesToCopyRelativePaths {
+	var newfilesToCopyRelativePaths []string
+	for _, checkfilestoCopy := range filesToCopyRelativePaths {
+		if strings.Contains(checkfilestoCopy, "/schema.cql") {
+			log.Println("Skipping...")
+		} else {
+			newfilesToCopyRelativePaths = append(newfilesToCopyRelativePaths, checkfilestoCopy)
+		}
+	}
+
+	for _, fileToCopyRelativePath := range newfilesToCopyRelativePaths {
 		log.Println("file to restore:\n", fileToCopyRelativePath)
+
 		fromPath := filepath.Join(srcPath, fileToCopyRelativePath)
 		log.Println("soruce path:\n", fromPath)
+
 		toPath, err := PathFromSrcToK8sRestoreKeySpace(k8sClient, fromPath, cassandraDataDir, srcBasePath, namespace, container, pods, tables, testedPaths)
 		log.Println("DestPath:\n", toPath)
 		if err != nil {
