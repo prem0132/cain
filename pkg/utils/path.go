@@ -87,10 +87,10 @@ func GetFromAndToPathsSrcToK8sKeySpace(srcClient, k8sClient interface{}, srcPref
 	tables := make(map[string]string)
 	testedPaths := make(map[string]string)
 	for _, fileToCopyRelativePath := range filesToCopyRelativePaths {
-
+		log.Println("file to restore:\n", fileToCopyRelativePath)
 		fromPath := filepath.Join(srcPath, fileToCopyRelativePath)
 		log.Println("soruce path:\n", fromPath)
-		toPath, err := PathFromSrcToK8s(k8sClient, fromPath, cassandraDataDir, srcBasePath, namespace, container, pods, tables, testedPaths)
+		toPath, err := PathFromSrcToK8sRestoreKeySpace(k8sClient, fromPath, cassandraDataDir, srcBasePath, namespace, container, pods, tables, testedPaths)
 		log.Println("DestPath:\n", toPath)
 		if err != nil {
 			return nil, nil, nil, err
@@ -100,6 +100,45 @@ func GetFromAndToPathsSrcToK8sKeySpace(srcClient, k8sClient interface{}, srcPref
 	}
 
 	return fromToPaths, MapKeysToSlice(pods), MapKeysToSlice(tables), nil
+}
+
+// PathFromSrcToK8sRestoreKeySpace maps a single path from source to Kubernetes
+func PathFromSrcToK8sRestoreKeySpace(k8sClient interface{}, fromPath, cassandraDataDir, srcBasePath, namespace, container string, pods, tables, testedPaths map[string]string) (string, error) {
+	fromPath = strings.Replace(fromPath, srcBasePath+"/", "", 1)
+	pSplit := strings.Split(fromPath, "/")
+
+	keyspace := pSplit[0]
+	// 1 = sum
+	// 2 = tag
+	pod := pSplit[2]
+	table := pSplit[4]
+	file := pSplit[5]
+
+	pods[pod] = "hello there!"
+	tables[table] = "hello there!"
+
+	k8sKeyspacePath := filepath.Join(namespace, pod, container, cassandraDataDir, keyspace)
+
+	// Don`t test the same path twice
+	pathToTest := filepath.Join(k8sKeyspacePath, table)
+	if tablePath, ok := testedPaths[pathToTest]; ok {
+		toPath := filepath.Join(tablePath, file)
+		return toPath, nil
+	}
+
+	tableRelativePath, err := skbn.GetListOfFilesFromK8s(k8sClient, k8sKeyspacePath, "d", table+"-*")
+	if err != nil {
+		return "", err
+	}
+	if len(tableRelativePath) != 1 {
+		return "", fmt.Errorf("Error with table %s, found %d directories", table, len(tableRelativePath))
+	}
+
+	tablePath := filepath.Join(k8sKeyspacePath, tableRelativePath[0])
+	testedPaths[pathToTest] = tablePath
+	toPath := filepath.Join(tablePath, file)
+
+	return toPath, nil
 }
 
 //REDUNDANT FROM CQLSH
