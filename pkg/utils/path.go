@@ -82,7 +82,7 @@ func GetFromAndToPathsSrcToK8sKeySpace(srcClient, k8sClient interface{}, srcPref
 	if len(filesToCopyRelativePaths) == 0 {
 		return nil, nil, nil, fmt.Errorf("No files found to restore")
 	}
-	log.Println("files to restore:\n", filesToCopyRelativePaths)
+	//log.Println("files to restore:\n", filesToCopyRelativePaths)
 	pods := make(map[string]string)
 	tables := make(map[string]string)
 	testedPaths := make(map[string]string)
@@ -137,7 +137,7 @@ func PathFromSrcToK8sRestoreKeySpace(k8sClient interface{}, fromPath, cassandraD
 	tablePath := filepath.Join(k8sKeyspacePath, tableRelativePath[0])
 	testedPaths[pathToTest] = tablePath
 	toPath := filepath.Join(tablePath, file)
-
+	log.Println("toPath:", toPath)
 	return toPath, nil
 }
 
