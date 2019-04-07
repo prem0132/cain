@@ -151,7 +151,7 @@ func GetFromAndToPathsKeySpaceK8sToDst(k8sClient interface{}, namespace, pod, co
 		for _, fileToCopyRelativePath := range newfilesToCopyRelativePaths {
 
 			log.Println("fileToCopyRelativePath", fileToCopyRelativePath)
-			fromPath := filepath.Join(keyspacePath, fileToCopyRelativePath)
+			fromPath := filepath.Join(tablePath, fileToCopyRelativePath)
 			log.Println("PathFromK8sToDst Arguments: \n", fromPath, cassandraDataDir, dstBasePath)
 			toPath := PathFromK8sToDst(fromPath, cassandraDataDir, dstBasePath)
 
