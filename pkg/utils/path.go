@@ -181,14 +181,14 @@ func GetFromAndToPathsK8sToDst(k8sClient interface{}, namespace, pod, container,
 		}
 
 		for _, fileToCopyRelativePath := range filesToCopyRelativePaths {
-
+			log.Println("fileToCopyRelativePath", fileToCopyRelativePath)
 			fromPath := filepath.Join(tablePath, fileToCopyRelativePath)
 			toPath := PathFromK8sToDst(fromPath, cassandraDataDir, dstBasePath)
 
 			fromToPaths = append(fromToPaths, skbn.FromToPair{FromPath: fromPath, ToPath: toPath})
 		}
 	}
-
+	log.Println("fromToPaths", fromToPaths)
 	return fromToPaths, nil
 }
 
