@@ -126,6 +126,16 @@ func SchemaBackup(o SchemaBackupOptions) (string, error) {
 
 	log.Println("fromToPathsCassandraKeySpace", fromToPathsCassandraKeySpace)
 
+	log.Println("Starting files copy")
+	if err := skbn.PerformCopy(k8sClient, dstClient, "k8s", dstPrefix, fromToPathsCassandraKeySpace, o.Parallel, o.BufferSize); err != nil {
+		return "", err
+	}
+
+	//log.Println("Clearing snapshots")
+	//ClearSnapshots(k8sClient, pods, o.Namespace, o.Container, o.Keyspace, tag)
+
+	log.Println("All done!")
+
 	return "", nil
 }
 
