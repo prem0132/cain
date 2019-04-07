@@ -206,7 +206,7 @@ func PathFromK8sToDst(k8sPath, cassandraDataDir, dstBasePath string) string {
 	log.Println("file:", file)
 
 	table := strings.Split(tableWithHash, "-")[0]
-
+	log.Println("finalPath: ", filepath.Join(dstBasePath, tag, pod, table, file))
 	return filepath.Join(dstBasePath, tag, pod, table, file)
 }
 
