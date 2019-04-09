@@ -32,5 +32,5 @@ func GetPods(iClient interface{}, namespace, selector string) ([]string, []strin
 
 	log.Printf("PodIP: %v", podIPList)
 
-	return podIPList, podList, nil
+	return podList, podIPList, nil
 }
