@@ -45,7 +45,7 @@ func AddData(o AddDataOptions) (string, error) {
 
 	log.Printf("ip of cassandra: %v", podsIP)
 
-	cluster := gocql.NewCluster((string)(stderr))
+	cluster := gocql.NewCluster(podsIP[0])
 	cluster.Keyspace = o.Keyspace
 	cluster.Consistency = gocql.Quorum
 	session, _ := cluster.CreateSession()

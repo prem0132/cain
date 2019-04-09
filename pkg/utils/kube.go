@@ -10,7 +10,7 @@ import (
 )
 
 // GetPods returns a slice of strings of pod names by namespace and selector
-func GetPods(iClient interface{}, namespace, selector string) ([]string,[]string, error) {
+func GetPods(iClient interface{}, namespace, selector string) ([]string, []string, error) {
 
 	k8sClient := *iClient.(*skbn.K8sClient)
 	pods, err := k8sClient.ClientSet.CoreV1().Pods(namespace).List(metav1.ListOptions{
@@ -29,7 +29,6 @@ func GetPods(iClient interface{}, namespace, selector string) ([]string,[]string
 	if len(podList) == 0 {
 		return nil, nil, fmt.Errorf("No pods were found in namespace %s by selector %s", namespace, selector)
 	}
-
 
 	log.Printf("PodIP: %v", podIPList)
 
