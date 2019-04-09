@@ -14,3 +14,6 @@
 # dep/glide
 vendor/
 bin/
+cain
+push.sh
+.idea/

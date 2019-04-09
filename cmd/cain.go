@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/maorfr/cain/pkg/cain"
-	"github.com/maorfr/cain/pkg/utils"
+	"github.com/prem0132/cain/pkg/cain"
+	"github.com/prem0132/cain/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -34,6 +34,72 @@ func NewRootCmd(args []string) *cobra.Command {
 	cmd.AddCommand(NewRestoreCmd(out))
 	cmd.AddCommand(NewSchemaCmd(out))
 	cmd.AddCommand(NewVersionCmd(out))
+	cmd.AddCommand(NewAddData(out))
+
+	return cmd
+}
+
+type addDataCmd struct {
+	loop      bool
+	executors int
+	run       int
+	keyspace  string
+	selector  string
+	table     string
+
+	out io.Writer
+}
+
+// NewAddData starts adding data
+func NewAddData(out io.Writer) *cobra.Command {
+	a := &addDataCmd{out: out}
+
+	cmd := &cobra.Command{
+		Use:   "add",
+		Short: "add dummy data to cassandra",
+		Long:  ``,
+		Args: func(cmd *cobra.Command, args []string) error {
+			log.Printf("\nloop: %v \nrun: %v \nexecutors: %v", a.loop, a.run, a.executors)
+			if a.keyspace == "" {
+				return errors.New("table can not be empty")
+			}
+			if a.table == "" {
+				return errors.New("keyspace can not be empty")
+			}
+			if a.loop == false && a.run != 0 {
+				log.Printf("loop was not specified, will run only for run count only")
+			}
+			if a.run == 0 && a.loop == false {
+				log.Printf("run was not specified and neither was loop, so one shot is all you got!!!")
+				a.run = 1
+			}
+			if a.loop == true && a.run != 0 {
+				return errors.New("you can't set loop to true and run at the same time")
+			}
+			return nil
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+			options := cain.AddDataOptions{
+				Loop:      a.loop,
+				Executors: a.executors,
+				Run:       a.run,
+				Keyspace:  a.keyspace,
+				Selector:  a.selector,
+				Table:     a.table,
+			}
+			if _, err := cain.AddData(options); err != nil {
+				log.Fatal(err)
+			}
+		},
+	}
+	f := cmd.Flags()
+
+	f.BoolVarP(&a.loop, "loop", "l", false, "set this to true to push data indefinitely")
+	f.IntVarP(&a.executors, "executors", "e", 1, "set this to the number of parallel runs you want")
+	f.IntVarP(&a.run, "run", "r", 0, "set this to the number of iterations you want to run")
+	f.StringVarP(&a.keyspace, "keyspace", "k", "example", "name of the keyspace you want to populate data to")
+	f.StringVarP(&a.selector, "selector", "s", "app=cassandra", "selector to list the pods of cassandra")
+	f.StringVarP(&a.table, "table", "t", "tweet", "table to populate data to")
 
 	return cmd
 }

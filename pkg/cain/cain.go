@@ -5,9 +5,61 @@ import (
 	"log"
 	"path/filepath"
 
-	"github.com/maorfr/cain/pkg/utils"
+	"github.com/gocql/gocql"
 	"github.com/maorfr/skbn/pkg/skbn"
+	"github.com/prem0132/cain/pkg/utils"
 )
+
+// AddDataOptions are the options to add data
+type AddDataOptions struct {
+	Loop      bool
+	Executors int
+	Run       int
+	Namespace string
+	Selector  string
+	Keyspace  string
+	Table     string
+}
+
+// AddData add dummy data to the cassandra Cluster
+func AddData(o AddDataOptions) (string, error) {
+	log.Printf("function for adding data!!!")
+	log.Printf("options:%v ", o)
+
+	//command := []string{"rm","-rf", "/var/lib/cassandra/data/test"}
+	command := []string{"ip", "addr"}
+
+	k8sClient, err := skbn.GetClientToK8s()
+	if err != nil {
+		return "", err
+	}
+	pods, podsIP, err := utils.GetPods(k8sClient, o.Namespace, o.Selector)
+	if err != nil {
+		return "", err
+	}
+
+	stderr, err := skbn.Exec(*k8sClient, o.Namespace, pods[0], "", command, nil, nil)
+	if stderr != nil {
+		return "", err
+	}
+
+	log.Printf("ip of cassandra: %v", podsIP)
+
+	cluster := gocql.NewCluster((string)(stderr))
+	cluster.Keyspace = o.Keyspace
+	cluster.Consistency = gocql.Quorum
+	session, _ := cluster.CreateSession()
+	defer session.Close()
+
+	// insert a tweet
+	if err := session.Query(`INSERT INTO tweet (timeline, id, text) VALUES ( ? , ? , ? )`,
+		"me", gocql.TimeUUID(), "alphabet").Exec(); err != nil {
+		log.Fatal(err)
+	}
+
+	log.Printf("Tweet: tweet")
+	return "", nil
+}
 
 // BackupOptions are the options to pass to Backup
 type BackupOptions struct {
@@ -37,7 +89,7 @@ func Backup(o BackupOptions) (string, error) {
 	}
 
 	log.Println("Getting pods")
-	pods, err := utils.GetPods(k8sClient, o.Namespace, o.Selector)
+	pods, _, err := utils.GetPods(k8sClient, o.Namespace, o.Selector)
 	if err != nil {
 		return "", err
 	}
@@ -101,7 +153,7 @@ func Restore(o RestoreOptions) error {
 	}
 
 	log.Println("Getting pods")
-	existingPods, err := utils.GetPods(k8sClient, o.Namespace, o.Selector)
+	existingPods, _, err := utils.GetPods(k8sClient, o.Namespace, o.Selector)
 	if err != nil {
 		return err
 	}
@@ -183,7 +235,7 @@ func Schema(o SchemaOptions) ([]byte, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-	pods, err := utils.GetPods(k8sClient, o.Namespace, o.Selector)
+	pods, _, err := utils.GetPods(k8sClient, o.Namespace, o.Selector)
 	if err != nil {
 		return nil, "", err
 	}
