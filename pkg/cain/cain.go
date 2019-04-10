@@ -54,7 +54,7 @@ func AddData(o AddDataOptions) (string, error) {
 	}
 
 	if tableName == "" {
-		fmt.Println("Table not found")
+		fmt.Printf("Table Name: %v", tableName)
 		log.Fatal(tableName)
 	}
 
@@ -71,7 +71,7 @@ func AddData(o AddDataOptions) (string, error) {
 		}
 	} else {
 		for r := 0; r < o.Run; r++ {
-			log.Printf("Data: %v", r)
+			log.Printf("Data: %v		%v 		%v", time.Now().Format("20060102150405"), "test", r)
 			if err := session.Query(`INSERT INTO tweet (timeline, id, text) VALUES ( ? , ? , ? )`,
 				time.Now().Format("20060102150405"), r, "test").Exec(); err != nil {
 				log.Fatal(err)
