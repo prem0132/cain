@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
+	"strings"
 
 	"github.com/gocql/gocql"
 	"github.com/maorfr/skbn/pkg/skbn"
@@ -63,14 +64,13 @@ func AddData(o AddDataOptions) (string, error) {
 	return "", nil
 }
 
-type NodeToolOptions struct {
+type CqlshOptions struct {
 	Namespace string
-	Command   []string
+	Command   string
 	Selector  string
 }
 
-func NodeTool(o NodeToolOptions) (string, error) {
-	log.Printf("NodeTool Module")
+func CqlshExec(o CqlshOptions) (string, error) {
 
 	k8sClient, err := skbn.GetClientToK8s()
 	if err != nil {
@@ -81,7 +81,32 @@ func NodeTool(o NodeToolOptions) (string, error) {
 		return "", err
 	}
 
-	output, err := Newnodetool(k8sClient, o.Namespace, pods[0], "", o.Command)
+	newCommand := []string{fmt.Sprintf("%v", o.Command)}
+	output, err := Cqlsh(k8sClient, o.Namespace, pods[0], "", newCommand)
+
+	log.Printf("Command exited with:%v", string(output))
+	return "", nil
+}
+
+type NodeToolOptions struct {
+	Namespace string
+	Command   string
+	Selector  string
+}
+
+func NodeTool(o NodeToolOptions) (string, error) {
+
+	pSplit := strings.Split(o.Command, " ")
+	k8sClient, err := skbn.GetClientToK8s()
+	if err != nil {
+		return "", err
+	}
+	pods, _, err := utils.GetPods(k8sClient, o.Namespace, o.Selector)
+	if err != nil {
+		return "", err
+	}
+
+	output, err := Newnodetool(k8sClient, o.Namespace, pods[0], "", pSplit)
 
 	log.Printf("Command exited with: \n %v", output)
 	return "", nil

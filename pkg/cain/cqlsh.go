@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/maorfr/cain/pkg/utils"
 	"github.com/maorfr/skbn/pkg/skbn"
+	"github.com/prem0132/cain/pkg/utils"
 )
 
 // BackupKeyspaceSchema gets the schema of the keyspace and backs it up
@@ -125,9 +125,11 @@ func GetMaterializedViews(iK8sClient interface{}, namespace, container, pod, key
 
 // Cqlsh executes cqlsh -e 'command' in a given pod
 func Cqlsh(iK8sClient interface{}, namespace, pod, container string, command []string) ([]byte, error) {
+	log.Printf("Executing on Cqlsh: %v", command)
 	k8sClient := iK8sClient.(*skbn.K8sClient)
 
 	command = append([]string{"cqlsh", "-e"}, command...)
+	log.Printf("Executing on Cqlsh: %v", command)
 	stdout := new(bytes.Buffer)
 	stderr, err := skbn.Exec(*k8sClient, namespace, pod, container, command, nil, stdout)
 
@@ -137,7 +139,6 @@ func Cqlsh(iK8sClient interface{}, namespace, pod, container string, command []s
 	if err != nil {
 		return nil, err
 	}
-
 	return removeWarning(stdout.Bytes()), nil
 }
 

@@ -36,6 +36,7 @@ func NewRootCmd(args []string) *cobra.Command {
 	cmd.AddCommand(NewVersionCmd(out))
 	cmd.AddCommand(NewAddData(out))
 	cmd.AddCommand(NodeTool(out))
+	cmd.AddCommand(Cqlsh(out))
 
 	return cmd
 }
@@ -105,9 +106,49 @@ func NewAddData(out io.Writer) *cobra.Command {
 	return cmd
 }
 
+type cqlshArgs struct {
+	namespace string
+	command   string
+	selector  string
+
+	out io.Writer
+}
+
+// NodeTool gives access to node tool through cain
+func Cqlsh(out io.Writer) *cobra.Command {
+	n := &cqlshArgs{out: out}
+
+	cmd := &cobra.Command{
+		Use:   "cqlsh",
+		Short: "Cqlsh proxy via cain for cassandra cluster",
+		Long:  ``,
+		Args: func(cmd *cobra.Command, args []string) error {
+			return nil
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+			options := cain.CqlshOptions{
+				Namespace: n.namespace,
+				Command:   n.command,
+				Selector:  n.selector,
+			}
+			if _, err := cain.CqlshExec(options); err != nil {
+				log.Fatal(err)
+			}
+		},
+	}
+	f := cmd.Flags()
+
+	f.StringVarP(&n.selector, "selector", "s", "app=cassandra", "selector to list the pods of cassandra")
+	f.StringVarP(&n.namespace, "namespace", "n", "tempus", "namespace to find cassandra cluster.")
+	f.StringVarP(&n.command, "command", "c", "describe keyspaces;", "command as string array")
+
+	return cmd
+
+}
+
 type nodeToolArgs struct {
 	namespace string
-	command   []string
+	command   string
 	selector  string
 
 	out io.Writer
@@ -117,19 +158,11 @@ type nodeToolArgs struct {
 func NodeTool(out io.Writer) *cobra.Command {
 	n := &nodeToolArgs{out: out}
 
-	log.Println("Accessing Nodetool...")
-
 	cmd := &cobra.Command{
 		Use:   "nodetool",
 		Short: "NodeTool proxy via cain for cassandra cluster",
 		Long:  ``,
 		Args: func(cmd *cobra.Command, args []string) error {
-			if n.namespace == "" {
-				return errors.New("dst can not be empty")
-			}
-			if len(n.command) == 0 {
-				return errors.New("keyspace can not be empty")
-			}
 			return nil
 		},
 		Run: func(cmd *cobra.Command, args []string) {
@@ -147,7 +180,7 @@ func NodeTool(out io.Writer) *cobra.Command {
 
 	f.StringVarP(&n.selector, "selector", "s", "app=cassandra", "selector to list the pods of cassandra")
 	f.StringVarP(&n.namespace, "namespace", "n", "tempus", "namespace to find cassandra cluster.")
-	f.StringArrayVarP(&n.command, "command", "c", []string{"status"}, "selector to filter on. Overrides $CAIN_SELECTOR")
+	f.StringVarP(&n.command, "command", "c", "status", "command as string array")
 
 	return cmd
 
