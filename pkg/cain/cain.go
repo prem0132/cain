@@ -69,6 +69,14 @@ func AddData(o AddDataOptions) (string, error) {
 				log.Fatal(err)
 			}
 		}
+	} else {
+		for r := 0; r < o.Run; r++ {
+			log.Printf("Data: %v", r)
+			if err := session.Query(`INSERT INTO tweet (timeline, id, text) VALUES ( ? , ? , ? )`,
+				time.Now().Format("20060102150405"), i, "test").Exec(); err != nil {
+				log.Fatal(err)
+			}
+		}
 	}
 
 	return "", nil
