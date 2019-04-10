@@ -69,7 +69,7 @@ func AddData(o AddDataOptions) (string, error) {
 	} else {
 		for r := 0; r < o.Run; r++ {
 			log.Printf("Data: %v		%v 		%v", time.Now().Format("20060102150405"), gocql.TimeUUID(), r)
-			if err := session.Query(`INSERT INTO tweet (timeline, id, text) VALUES ( ? , ? , ? )`,
+			if err := session.Query(`INSERT INTO tweet (timeline, id, text, subtext) VALUES ( ? , ? , ? )`,
 				time.Now().Format("20060102150405"), r, gocql.TimeUUID(), gocql.TimeUUID()).Exec(); err != nil {
 				log.Fatal(err)
 			}
