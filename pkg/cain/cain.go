@@ -52,6 +52,7 @@ func AddData(o AddDataOptions) (string, error) {
 		o.Keyspace, o.Table).Consistency(gocql.One).Scan(&tableName); err != nil {
 		log.Fatal(err)
 	}
+
 	if tableName == "" {
 		fmt.Println("Table not found")
 		log.Fatal(tableName)
