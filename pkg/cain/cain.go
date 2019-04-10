@@ -58,20 +58,20 @@ func AddData(o AddDataOptions) (string, error) {
 		log.Fatal(tableName)
 	}
 
-	i := 0
 	// insert a tweet
 	if o.Loop == true {
+		i := 0
 		for {
-			log.Printf("Data: %v", i)
+			log.Printf("Data: %v		%v 		%v", time.Now().Format("20060102150405"), gocql.TimeUUID(), i)
 			i = i + 1
-			if err := session.Query(`INSERT INTO tweet (timeline, id, text) VALUES ( ? , ? , ? )`,
-				time.Now().Format("20060102150405"), i, "test").Exec(); err != nil {
+			if err := session.Query(`INSERT INTO tweet (timeline, id, text, subtext) VALUES ( ? , ? , ? , ? )`,
+				time.Now().Format("20060102150405"), i, gocql.TimeUUID(), gocql.TimeUUID()).Exec(); err != nil {
 				log.Fatal(err)
 			}
 		}
 	} else {
 		for r := 0; r < o.Run; r++ {
-			log.Printf("Data: %v		%v 		%v", time.Now().Format("20060102150405"), "test", r)
+			log.Printf("Data: %v		%v 		%v", time.Now().Format("20060102150405"), gocql.TimeUUID(), r)
 			if err := session.Query(`INSERT INTO tweet (timeline, id, text) VALUES ( ? , ? , ? )`,
 				time.Now().Format("20060102150405"), r, "test").Exec(); err != nil {
 				log.Fatal(err)
