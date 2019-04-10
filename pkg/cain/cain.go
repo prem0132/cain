@@ -52,19 +52,21 @@ func AddData(o AddDataOptions) (string, error) {
 		o.Keyspace, o.Table).Consistency(gocql.One).Scan(&tableName); err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Println("Table found:", tableName)
+	if tableName == "" {
+		fmt.Println("Table not found")
+		log.Fatal(tableName)
+	}
 
 	i := 0
 	// insert a tweet
 	for {
 		if err := session.Query(`INSERT INTO tweet (timeline, id, text) VALUES ( ? , ? , ? )`,
 			time.Now().Format("20060102150405"), "test", i).Exec(); err != nil {
+			log.Printf("Data: %v", i)
+			i = i + 1
 			log.Fatal(err)
 		}
 	}
-
-	log.Printf("Tweet: tweet")
 	return "", nil
 }
 
