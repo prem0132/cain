@@ -47,12 +47,12 @@ func AddData(o AddDataOptions) (string, error) {
 
 	var tableName string
 	if err := session.Query(`SELECT table_name
-        FROM system_schema.tables WHERE keyspace_name= ? LIMIT 1`,
-		o.Keyspace).Consistency(gocql.One).Scan(&tableName); err != nil {
+        FROM system_schema.tables WHERE keyspace_name= ? and table_name= ? LIMIT 1`,
+		o.Keyspace, o.Table).Consistency(gocql.One).Scan(&tableName); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Table:", tableName)
 
+	fmt.Println("Table found:", tableName)
 	// insert a tweet
 	if err := session.Query(`INSERT INTO tweet (timeline, id, text) VALUES ( ? , ? , ? )`,
 		"me", gocql.TimeUUID(), "alphabet").Exec(); err != nil {
