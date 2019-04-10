@@ -62,10 +62,10 @@ func AddData(o AddDataOptions) (string, error) {
 	// insert a tweet
 	if o.Loop == true {
 		for {
+			log.Printf("Data: %v", i)
+			i = i + 1
 			if err := session.Query(`INSERT INTO tweet (timeline, id, text) VALUES ( ? , ? , ? )`,
 				time.Now().Format("20060102150405"), "test", i).Exec(); err != nil {
-				log.Printf("Data: %v", i)
-				i = i + 1
 				log.Fatal(err)
 			}
 		}
