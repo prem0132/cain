@@ -5,6 +5,7 @@ import (
 	"log"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gocql/gocql"
 	"github.com/maorfr/skbn/pkg/skbn"
@@ -53,10 +54,14 @@ func AddData(o AddDataOptions) (string, error) {
 	}
 
 	fmt.Println("Table found:", tableName)
+
+	i := 0
 	// insert a tweet
-	if err := session.Query(`INSERT INTO tweet (timeline, id, text) VALUES ( ? , ? , ? )`,
-		"me", gocql.TimeUUID(), "alphabet").Exec(); err != nil {
-		log.Fatal(err)
+	for {
+		if err := session.Query(`INSERT INTO tweet (timeline, id, text) VALUES ( ? , ? , ? )`,
+			time.Now().Format("20060102150405"), "test", i).Exec(); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	log.Printf("Tweet: tweet")
