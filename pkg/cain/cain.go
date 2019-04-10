@@ -27,7 +27,7 @@ func AddData(o AddDataOptions) (string, error) {
 	log.Printf("options:%v ", o)
 
 	//command := []string{"rm","-rf", "/var/lib/cassandra/data/test"}
-	command := []string{"ip", "addr"}
+	//command := []string{"ip", "addr"}
 
 	k8sClient, err := skbn.GetClientToK8s()
 	if err != nil {
@@ -38,10 +38,12 @@ func AddData(o AddDataOptions) (string, error) {
 		return "", err
 	}
 
-	stderr, err := skbn.Exec(*k8sClient, o.Namespace, pods[0], "", command, nil, nil)
-	if stderr != nil {
-		return "", err
-	}
+	log.Printf("Pods Detected: %v", pods)
+
+	//stderr, err := skbn.Exec(*k8sClient, o.Namespace, pods[0], "", command, nil, nil)
+	//if stderr != nil {
+	//	return "", err
+	//}
 
 	log.Printf("ip of cassandra: %v", podsIP)
 
@@ -58,6 +60,30 @@ func AddData(o AddDataOptions) (string, error) {
 	}
 
 	log.Printf("Tweet: tweet")
+	return "", nil
+}
+
+type NodeToolOptions struct {
+	Namespace string
+	Command   []string
+	Selector  string
+}
+
+func NodeTool(o NodeToolOptions) (string, error) {
+	log.Printf("NodeTool Module")
+
+	k8sClient, err := skbn.GetClientToK8s()
+	if err != nil {
+		return "", err
+	}
+	pods, _, err := utils.GetPods(k8sClient, o.Namespace, o.Selector)
+	if err != nil {
+		return "", err
+	}
+
+	output, err := Newnodetool(k8sClient, o.Namespace, pods[0], "", o.Command)
+
+	log.Printf("Command exited with: \n %v", output)
 	return "", nil
 }
 

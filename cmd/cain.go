@@ -35,6 +35,7 @@ func NewRootCmd(args []string) *cobra.Command {
 	cmd.AddCommand(NewSchemaCmd(out))
 	cmd.AddCommand(NewVersionCmd(out))
 	cmd.AddCommand(NewAddData(out))
+	cmd.AddCommand(NodeTool(out))
 
 	return cmd
 }
@@ -102,6 +103,54 @@ func NewAddData(out io.Writer) *cobra.Command {
 	f.StringVarP(&a.table, "table", "t", "tweet", "table to populate data to")
 
 	return cmd
+}
+
+type nodeToolArgs struct {
+	namespace string
+	command   []string
+	selector  string
+
+	out io.Writer
+}
+
+// NodeTool gives access to node tool through cain
+func NodeTool(out io.Writer) *cobra.Command {
+	n := &nodeToolArgs{out: out}
+
+	log.Println("Accessing Nodetool...")
+
+	cmd := &cobra.Command{
+		Use:   "nodetool",
+		Short: "NodeTool proxy via cain for cassandra cluster",
+		Long:  ``,
+		Args: func(cmd *cobra.Command, args []string) error {
+			if n.namespace == "" {
+				return errors.New("dst can not be empty")
+			}
+			if len(n.command) == 0 {
+				return errors.New("keyspace can not be empty")
+			}
+			return nil
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+			options := cain.NodeToolOptions{
+				Namespace: n.namespace,
+				Command:   n.command,
+				Selector:  n.selector,
+			}
+			if _, err := cain.NodeTool(options); err != nil {
+				log.Fatal(err)
+			}
+		},
+	}
+	f := cmd.Flags()
+
+	f.StringVarP(&n.selector, "selector", "s", "app=cassandra", "selector to list the pods of cassandra")
+	f.StringVarP(&n.namespace, "namespace", "n", "tempus", "namespace to find cassandra cluster.")
+	f.StringArrayVarP(&n.command, "command", "c", []string{"status"}, "selector to filter on. Overrides $CAIN_SELECTOR")
+
+	return cmd
+
 }
 
 type backupCmd struct {
