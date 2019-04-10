@@ -27,9 +27,6 @@ func AddData(o AddDataOptions) (string, error) {
 	log.Printf("function for adding data!!!")
 	log.Printf("options:%v ", o)
 
-	//command := []string{"rm","-rf", "/var/lib/cassandra/data/test"}
-	//command := []string{"ip", "addr"}
-
 	k8sClient, err := skbn.GetClientToK8s()
 	if err != nil {
 		return "", err
@@ -40,12 +37,6 @@ func AddData(o AddDataOptions) (string, error) {
 	}
 
 	log.Printf("Pods Detected: %v", pods)
-
-	//stderr, err := skbn.Exec(*k8sClient, o.Namespace, pods[0], "", command, nil, nil)
-	//if stderr != nil {
-	//	return "", err
-	//}
-
 	log.Printf("ip of cassandra: %v", podsIP)
 
 	cluster := gocql.NewCluster(podsIP[0])
@@ -53,6 +44,14 @@ func AddData(o AddDataOptions) (string, error) {
 	cluster.Consistency = gocql.Quorum
 	session, _ := cluster.CreateSession()
 	defer session.Close()
+
+	var tableName string
+	if err := session.Query(`SELECT table_name
+        FROM system_schema.tables WHERE keyspace_name= ? LIMIT 1`,
+		o.Keyspace).Consistency(gocql.One).Scan(&tableName); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Table:", tableName)
 
 	// insert a tweet
 	if err := session.Query(`INSERT INTO tweet (timeline, id, text) VALUES ( ? , ? , ? )`,
