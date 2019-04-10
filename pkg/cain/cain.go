@@ -60,14 +60,17 @@ func AddData(o AddDataOptions) (string, error) {
 
 	i := 0
 	// insert a tweet
-	for {
-		if err := session.Query(`INSERT INTO tweet (timeline, id, text) VALUES ( ? , ? , ? )`,
-			time.Now().Format("20060102150405"), "test", i).Exec(); err != nil {
-			log.Printf("Data: %v", i)
-			i = i + 1
-			log.Fatal(err)
+	if o.Loop == true {
+		for {
+			if err := session.Query(`INSERT INTO tweet (timeline, id, text) VALUES ( ? , ? , ? )`,
+				time.Now().Format("20060102150405"), "test", i).Exec(); err != nil {
+				log.Printf("Data: %v", i)
+				i = i + 1
+				log.Fatal(err)
+			}
 		}
 	}
+
 	return "", nil
 }
 
