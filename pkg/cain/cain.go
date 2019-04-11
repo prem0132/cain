@@ -57,11 +57,12 @@ func AddData(o AddDataOptions) (string, error) {
 	log.Printf("Table Name: %v", tableName)
 
 	if o.Run > 1 {
-		o.Executors = o.Run
+		o.Executors = 32
 	} else if o.Loop == true {
 		o.Executors = 32
 	}
 	runtime.GOMAXPROCS(o.Executors)
+	log.Printf("MaxProcsSetat")
 
 	var wg sync.WaitGroup
 	wg.Add(1)
