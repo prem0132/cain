@@ -85,7 +85,7 @@ func AddData(o AddDataOptions) (string, error) {
 
 func countColoums(session *gocql.Session) {
 	count := 0
-	var id int
+	var id gocql.UUID
 	// list all tweets
 	iter := session.Query(`SELECT text FROM tweet`).Iter()
 	for iter.Scan(&id) {
