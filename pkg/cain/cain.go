@@ -56,7 +56,7 @@ func AddData(o AddDataOptions) (string, error) {
 
 	log.Printf("Table Name: %v", tableName)
 
-	if o.Run > 1 {
+	if o.Run > 1 && o.Executors == 1 {
 		o.Executors = 32
 	} else if o.Loop == true {
 		o.Executors = 32
@@ -73,7 +73,7 @@ func AddData(o AddDataOptions) (string, error) {
 		if o.Loop == true {
 			i := 0
 			for {
-				log.Printf("Data: %v		%v 		%v", time.Now().Format("20060102150405"), gocql.TimeUUID(), i)
+				//log.Printf("Data: %v		%v 		%v", time.Now().Format("20060102150405"), gocql.TimeUUID(), i)
 				i = i + 1
 				if err := session.Query(`INSERT INTO tweet (timeline, id, text, subtext) VALUES ( ? , ? , ? , ? )`,
 					time.Now().Format("20060102150405"), i, gocql.TimeUUID(), gocql.TimeUUID()).Exec(); err != nil {
@@ -83,7 +83,7 @@ func AddData(o AddDataOptions) (string, error) {
 		} else {
 			a := time.Now().UnixNano()
 			for r := 0; r < o.Run; r++ {
-				log.Printf("Data: %v		%v 		%v", time.Now().Format("20060102150405"), gocql.TimeUUID(), r)
+				//log.Printf("Data: %v		%v 		%v", time.Now().Format("20060102150405"), gocql.TimeUUID(), r)
 				if err := session.Query(`INSERT INTO tweet (timeline, id, text, subtext) VALUES ( ? , ? , ? , ? )`,
 					time.Now().Format("20060102150405"), r, gocql.TimeUUID(), gocql.TimeUUID()).Exec(); err != nil {
 					log.Fatal(err)
