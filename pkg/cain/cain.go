@@ -87,7 +87,7 @@ func countColoums(session *gocql.Session) {
 	count := 0
 	var id int
 	// list all tweets
-	iter := session.Query(`SELECT id, text FROM tweet WHERE timeline = ?`, "me").Iter()
+	iter := session.Query(`SELECT id, text FROM tweet LIMIT 100000000000`).Iter()
 	for iter.Scan(&id) {
 		count++
 	}
