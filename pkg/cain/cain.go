@@ -2,15 +2,14 @@ package cain
 
 import (
 	"fmt"
+	"log"
+	"path/filepath"
+	"strings"
+	"time"
+
 	"github.com/gocql/gocql"
 	"github.com/maorfr/skbn/pkg/skbn"
 	"github.com/prem0132/cain/pkg/utils"
-	"log"
-	"path/filepath"
-	"runtime"
-	"strings"
-	"sync"
-	"time"
 )
 
 // AddDataOptions are the options to add data
@@ -56,45 +55,29 @@ func AddData(o AddDataOptions) (string, error) {
 
 	log.Printf("Table Name: %v", tableName)
 
-	if o.Run > 1 && o.Executors == 1 {
-		o.Executors = 32
-	} else if o.Loop == true {
-		o.Executors = 32
-	}
-	runtime.GOMAXPROCS(o.Executors)
-	log.Printf("MaxProcsSetat: %v", o.Executors)
-
-	var wg sync.WaitGroup
-	wg.Add(1)
-
-	go func() {
-		defer wg.Done()
-		// insert a tweet
-		if o.Loop == true {
-			i := 0
-			for {
-				//log.Printf("Data: %v		%v 		%v", time.Now().Format("20060102150405"), gocql.TimeUUID(), i)
-				i = i + 1
-				if err := session.Query(`INSERT INTO tweet (timeline, id, text, subtext) VALUES ( ? , ? , ? , ? )`,
-					time.Now().Format("20060102150405"), i, gocql.TimeUUID(), gocql.TimeUUID()).Exec(); err != nil {
-					log.Fatal(err)
-				}
+	// insert a tweet
+	if o.Loop == true {
+		i := 0
+		for {
+			log.Printf("Data: %v		%v 		%v", time.Now().Format("20060102150405"), gocql.TimeUUID(), i)
+			i = i + 1
+			if err := session.Query(`INSERT INTO tweet (timeline, id, text, subtext) VALUES ( ? , ? , ? , ? )`,
+				time.Now().Format("20060102150405"), i, gocql.TimeUUID(), gocql.TimeUUID()).Exec(); err != nil {
+				log.Fatal(err)
 			}
-		} else {
-			a := time.Now().UnixNano()
-			for r := 0; r < o.Run; r++ {
-				//log.Printf("Data: %v		%v 		%v", time.Now().Format("20060102150405"), gocql.TimeUUID(), r)
-				if err := session.Query(`INSERT INTO tweet (timeline, id, text, subtext) VALUES ( ? , ? , ? , ? )`,
-					time.Now().Format("20060102150405"), r, gocql.TimeUUID(), gocql.TimeUUID()).Exec(); err != nil {
-					log.Fatal(err)
-				}
-			}
-			log.Printf("time_taken: %v nanoseconds", time.Now().UnixNano()-a)
-			log.Printf("time_taken: %v seconds", (time.Now().UnixNano()-a)/1000000000)
 		}
-	}()
-
-	wg.Wait()
+	} else {
+		a := time.Now().UnixNano()
+		for r := 0; r < o.Run; r++ {
+			log.Printf("Data: %v		%v 		%v", time.Now().Format("20060102150405"), gocql.TimeUUID(), r)
+			if err := session.Query(`INSERT INTO tweet (timeline, id, text, subtext) VALUES ( ? , ? , ? , ? )`,
+				time.Now().Format("20060102150405"), r, gocql.TimeUUID(), gocql.TimeUUID()).Exec(); err != nil {
+				log.Fatal(err)
+			}
+		}
+		log.Printf("time_taken: %v nanoseconds", time.Now().UnixNano()-a)
+		log.Printf("time_taken: %v seconds", (time.Now().UnixNano()-a)/1000000000)
+	}
 
 	return "", nil
 }
