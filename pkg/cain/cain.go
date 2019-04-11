@@ -62,7 +62,7 @@ func AddData(o AddDataOptions) (string, error) {
 		o.Executors = 32
 	}
 	runtime.GOMAXPROCS(o.Executors)
-	log.Printf("MaxProcsSetat")
+	log.Printf("MaxProcsSetat: %v", o.Executors)
 
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -90,6 +90,8 @@ func AddData(o AddDataOptions) (string, error) {
 			}
 		}
 	}()
+
+	wg.Wait()
 
 	return "", nil
 }
