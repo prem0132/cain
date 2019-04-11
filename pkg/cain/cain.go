@@ -77,9 +77,21 @@ func AddData(o AddDataOptions) (string, error) {
 		}
 		log.Printf("time_taken: %v nanoseconds", time.Now().UnixNano()-a)
 		log.Printf("time_taken: %v seconds", (time.Now().UnixNano()-a)/1000000000)
+		countColoums(session)
 	}
 
 	return "", nil
+}
+
+func countColoums(session *gocql.Session) {
+	var id []string
+	log.Printf("Counting cassandra coloumns")
+	if err := session.Query(`SELECT id FROM tweetLIMIT 1`,
+		"me").Consistency(gocql.One).Scan(&id); err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Total entries: %v", len(id))
+
 }
 
 type CqlshOptions struct {
