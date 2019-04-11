@@ -81,6 +81,7 @@ func AddData(o AddDataOptions) (string, error) {
 				}
 			}
 		} else {
+			a := time.Now().UnixNano()
 			for r := 0; r < o.Run; r++ {
 				log.Printf("Data: %v		%v 		%v", time.Now().Format("20060102150405"), gocql.TimeUUID(), r)
 				if err := session.Query(`INSERT INTO tweet (timeline, id, text, subtext) VALUES ( ? , ? , ? , ? )`,
@@ -88,6 +89,8 @@ func AddData(o AddDataOptions) (string, error) {
 					log.Fatal(err)
 				}
 			}
+			log.Printf("time_taken: %v nanoseconds", time.Now().UnixNano()-a)
+			log.Printf("time_taken: %v seconds", (time.Now().UnixNano()-a)/1000000000)
 		}
 	}()
 
