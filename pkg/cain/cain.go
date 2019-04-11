@@ -84,13 +84,17 @@ func AddData(o AddDataOptions) (string, error) {
 }
 
 func countColoums(session *gocql.Session) {
-	var id []string
-	log.Printf("Counting cassandra coloumns")
-	if err := session.Query(`SELECT id FROM tweet LIMIT 1000000000000000`,
-		"me").Consistency(gocql.One).Scan(&id); err != nil {
+	count := 0
+	var id int
+	// list all tweets
+	iter := session.Query(`SELECT id, text FROM tweet WHERE timeline = ?`, "me").Iter()
+	for iter.Scan(&id) {
+		count++
+	}
+	if err := iter.Close(); err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Total entries: %v", len(id))
+	log.Printf("Total Entries: %v", count)
 
 }
 
